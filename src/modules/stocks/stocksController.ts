@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { readFile } from "fs/promises";
 import { client } from "../../databases/bd";
 
+const pathQuery = "./src/modules/stocks/query/";
+
 /**
  *
  * Buscar Estoque Pelo Id do Produto
@@ -12,16 +14,22 @@ export async function findStockProductsById(
 ) {
   const { product_id } = request.params;
 
-  const findStockByProductsIdQuery = await readFile(
-    "./src/modules/stocks/query/find_stock_by_product_id.sql",
-    "utf-8"
-  );
+  try {
+    const findStockByProductsIdQuery = await readFile(
+      pathQuery + "find_stock_by_product_id.sql",
+      "utf-8"
+    );
 
-  const stockProducts = await client.query(findStockByProductsIdQuery, [
-    product_id,
-  ]);
+    const stockProducts = await client.query(findStockByProductsIdQuery, [
+      product_id,
+    ]);
 
-  return response.status(200).json(stockProducts.rows);
+    return response.status(200).json(stockProducts.rows);
+  } catch (err) {
+    return response
+      .status(400)
+      .json({ message: "Erro ao buscar informações do estoque!", err });
+  }
 }
 
 /**
@@ -36,18 +44,24 @@ export async function findStockProductsByName(
   const { name_product } = request.query;
   const { initial_date, final_date } = request.body;
 
-  const findStockProductsByNameQuery = await readFile(
-    "./src/modules/stocks/query/find_stock_products_by_name.sql",
-    "utf-8"
-  );
+  try {
+    const findStockProductsByNameQuery = await readFile(
+      pathQuery + "find_stock_products_by_name.sql",
+      "utf-8"
+    );
 
-  const stockProducts = await client.query(findStockProductsByNameQuery, [
-    `%${name_product}%`,
-    initial_date,
-    final_date,
-  ]);
+    const stockProducts = await client.query(findStockProductsByNameQuery, [
+      `%${name_product}%`,
+      initial_date,
+      final_date,
+    ]);
 
-  return response.status(200).json(stockProducts.rows);
+    return response.status(200).json(stockProducts.rows);
+  } catch (err) {
+    return response
+      .status(400)
+      .json({ message: "Erro ao buscar informações do estoque!", err });
+  }
 }
 
 /**
@@ -59,21 +73,27 @@ export async function createStock(request: Request, response: Response) {
   const { quantity, type } = request.body;
 
   const createStockQuery = await readFile(
-    "./src/modules/stocks/query/create_stock_product.sql",
+    pathQuery + "create_stock_product.sql",
     "utf-8"
   );
 
-  await client.query(createStockQuery, [quantity, type, product_id]);
+  try {
+    await client.query(createStockQuery, [quantity, type, product_id]);
 
-  if (type === "output") {
+    if (type === "output") {
+      return response
+        .status(201)
+        .json({ message: "Saída de produto realizada com sucesso!" });
+    }
+
     return response
       .status(201)
-      .json({ message: "Saída de produto realizada com sucesso!" });
+      .json({ message: "Entrada de produto realizada com sucesso!" });
+  } catch (err) {
+    return response
+      .status(400)
+      .json({ message: "Erro ao inserir quantidade de produto!", err });
   }
-
-  return response
-    .status(201)
-    .json({ message: "Entrada de produto realizada com sucesso!" });
 }
 
 /**
@@ -97,7 +117,7 @@ export async function updateStock(request: Request, response: Response) {
 
   try {
     const stockProduct = await readFile(
-      "./src/modules/stocks/query/update_stock_product.sql",
+      pathQuery + "update_stock_product.sql",
       "utf-8"
     );
 
@@ -121,7 +141,7 @@ export async function deleteStock(request: Request, response: Response) {
   const { product_id } = request.params;
 
   const findStockProductQuery = await readFile(
-    "./src/modules/stocks/query/find_stock_by_id.sql",
+    pathQuery + "find_stock_by_id.sql",
     "utf-8"
   );
 
@@ -137,7 +157,7 @@ export async function deleteStock(request: Request, response: Response) {
 
   try {
     const stockProduct = await readFile(
-      "./src/modules/stocks/query/delete_stock_product.sql",
+      pathQuery + "delete_stock_product.sql",
       "utf-8"
     );
 
