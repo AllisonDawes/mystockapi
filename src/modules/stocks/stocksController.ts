@@ -44,6 +44,12 @@ export async function findStockProductsByName(
   const { name_product } = request.query;
   const { initial_date, final_date } = request.body;
 
+  if (new Date(initial_date) > new Date(final_date)) {
+    return response
+      .status(400)
+      .json({ message: "Data inicial não pode ser maior que data final." });
+  }
+
   try {
     const findStockProductsByNameQuery = await readFile(
       pathQuery + "find_stock_products_by_name.sql",
@@ -72,12 +78,32 @@ export async function createStock(request: Request, response: Response) {
   const { product_id } = request.params;
   const { quantity, type } = request.body;
 
-  const createStockQuery = await readFile(
-    pathQuery + "create_stock_product.sql",
-    "utf-8"
-  );
-
   try {
+    // Ler query que verifica quantidade de estoque do poduto informado:
+    const findAllStockByProductIdQuery = await readFile(
+      pathQuery + "find_all_stock_by_product_id.sql",
+      "utf-8"
+    );
+
+    // executa query:
+    const findAllStockByProductId = await client.query(
+      findAllStockByProductIdQuery,
+      [product_id]
+    );
+
+    // Verifica se o estoque é menor do que a quantidade informada:
+    if (findAllStockByProductId.rows[0].total_stock < quantity) {
+      return response
+        .status(201)
+        .json({ message: "Saída maior que volume de estoque!" });
+    }
+
+    // Ler query para registrar uma entrada, ou saída:
+    const createStockQuery = await readFile(
+      pathQuery + "create_stock_product.sql",
+      "utf-8"
+    );
+
     await client.query(createStockQuery, [quantity, type, product_id]);
 
     if (type === "output") {
