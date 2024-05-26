@@ -4,22 +4,29 @@
 
 ## Descrição
 
-API de cadastro de produtos, entrada e saída de estoque, com funções simples usando SQL puro para fins de estudo e portfólio.
+API de cadastro de produtos, entrada e saída de estoque, com funções simples usando Typescript e SQL puro.
 
 <br>
 
-## Tecnologias
+## Pré-requisitos
 
-- NodeJS v20.12.2 <br>
+- NodeJS <br>
+- Postgresql
+
+<br>
+
+## Bibliotecas
+
 - Express v4.19.2 <br>
 - dotenv v16.4.5 <br>
+- helmet v7.1.0
 - pg v8.11.5
 
 <br>
 
 ## Instrução de instalação e uso
 
-1 - Tenha instalado NodeJS em sua máquina:
+1 - Link para download do NodeJS em sua máquina:
 
 https://nodejs.org/en
 
@@ -41,7 +48,7 @@ npm install
 
 <br>
 
-4 - Crie um arquivo .env na raiz do projeto para inserir as informações sensiveis de acesso ao banco de dados.
+4 - Crie um arquivo .env na raiz do projeto para inserir as informações sensiveis de acesso ao banco de dados e cole as variáveis de ambiente a seguir:
 
 HOST_DB=<br>
 PORT_DB=<br>
@@ -49,11 +56,17 @@ USER_DB=<br>
 PASS_DB=<br>
 DATABASE_DB=<br>
 
-<b>Obs: Você deve ter em sua máquina, um banco de dados Postgres.</b>
+<br>
 
-<br><br>
+5 - Rodar o comando abaixo para criação das tabelas <b>products</b> e <b>stocks</b>:
 
-5 - Após garatir a conexão com o banco de dados, rode o comando abaixo para iniciar a API em modo desenvolvedor:
+```
+npm run db:run
+```
+
+<br>
+
+6 - Após garatir a conexão com o banco de dados, rode o comando abaixo para iniciar a API em modo desenvolvedor:
 
 ```
 npm run dev
